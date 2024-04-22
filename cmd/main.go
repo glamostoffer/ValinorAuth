@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/glamostoffer/ValinorAuth/internal/config"
+	"github.com/glamostoffer/ValinorAuth/internal/lib/logger/pretty"
 	"github.com/glamostoffer/ValinorAuth/pkg/consts"
 	"log/slog"
 	"os"
@@ -13,8 +13,10 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	log.Info(fmt.Sprintf("cfg: %+v", *cfg))
-	log.Info("Config loaded")
+	log.Info(
+		"Config loaded",
+		slog.Any("cfg", *cfg),
+	)
 }
 
 func setupLogger(env string) *slog.Logger {
@@ -22,13 +24,9 @@ func setupLogger(env string) *slog.Logger {
 
 	switch env {
 	case consts.EnvLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		log = setupPrettySlog()
 	case consts.EnvDev:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		log = setupPrettySlog()
 	case consts.EnvProd:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
@@ -36,4 +34,16 @@ func setupLogger(env string) *slog.Logger {
 	}
 
 	return log
+}
+
+func setupPrettySlog() *slog.Logger {
+	opts := pretty.HandlerOptions{
+		SlogOpts: &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		},
+	}
+
+	handler := opts.NewPrettyHandler(os.Stdout)
+
+	return slog.New(handler)
 }

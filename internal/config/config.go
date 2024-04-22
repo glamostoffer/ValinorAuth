@@ -9,6 +9,7 @@ import (
 )
 
 type Config struct {
+	Env      string        `yaml:"env"`
 	TokenTTL time.Duration `yaml:"token_ttl"`
 	GRPC     GRPCConfig    `yaml:"grpc"`
 }

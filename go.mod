@@ -1,4 +1,4 @@
-module github.com/glamostoffer/ValinorProtos
+module github.com/glamostoffer/ValinorAuth
 
 go 1.22.0
 

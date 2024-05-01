@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
+	"github.com/glamostoffer/ValinorAuth/internal/app"
 	"github.com/glamostoffer/ValinorAuth/internal/config"
-	"github.com/glamostoffer/ValinorAuth/internal/lib/logger/pretty"
 	"github.com/glamostoffer/ValinorAuth/pkg/consts"
+	"github.com/glamostoffer/ValinorAuth/utils/logger/pretty"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -17,6 +21,26 @@ func main() {
 		"Config loaded",
 		slog.Any("cfg", *cfg),
 	)
+
+	application := app.New(*cfg, log)
+
+	go func() {
+		if err := application.Start(context.Background()); err != nil {
+			panic(err.Error())
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+
+	<-stop
+
+	stopCtx, stopCancel := context.WithTimeout(context.Background(), cfg.StopTimeout)
+	defer stopCancel()
+
+	if err := application.Stop(stopCtx); err != nil {
+		panic(err.Error())
+	}
 }
 
 func setupLogger(env string) *slog.Logger {

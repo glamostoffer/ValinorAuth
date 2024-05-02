@@ -16,7 +16,7 @@ func newUserCache(cache *RedisCache) *userCache {
 	}
 }
 
-func (r *userCache) SaveSignUpRequest(
+func (r *userCache) SaveInviteToken(
 	ctx context.Context,
 	token string,
 	req model.SignUpRequest,

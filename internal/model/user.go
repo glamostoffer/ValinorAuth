@@ -5,7 +5,7 @@ import "time"
 type User struct {
 	Username  string    `db:"username"`
 	Password  string    `db:"password"`
-	Role      string    `db:"role"`
+	Role      int       `db:"role"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }

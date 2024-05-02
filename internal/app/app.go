@@ -50,21 +50,23 @@ func (a *App) Start(ctx context.Context) error {
 
 	tx := tx_manager.New(pg)
 
-	clientRepo := clientRepository.New(pg)
-	adminRepo := adminRepository.New(pg)
+	clientRepo := clientRepository.New(pg, a.log)
+	adminRepo := adminRepository.New(pg, a.log)
 
 	clientRd := clientCache.New(rd)
-	adminRd := adminCache.New(rd)
+	adminRd := adminCache.New(rd, a.log)
 
 	clientUC := clientUseCase.New(
 		clientRd,
 		clientRepo,
 		tx,
+		a.log,
 	)
 	adminUC := adminUseCase.New(
 		adminRd,
 		adminRepo,
 		tx,
+		a.log,
 	)
 
 	grpcServer := grpc.NewServer(a.cfg, *clientUC, *adminUC)

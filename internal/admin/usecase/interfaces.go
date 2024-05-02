@@ -6,7 +6,7 @@ import (
 )
 
 type AdminUseCase interface {
-	SignUp(ctx context.Context, request model.SignUpRequest) error
-	SignIn(ctx context.Context, request model.SignInRequest) (response model.SignInResponse, err error)
-	GetUserDetails(ctx context.Context, clientID int64) (model.UserDetails, error)
+	SignUp(ctx context.Context, request model.AdminSignUpRequest) error
+	BanUser(ctx context.Context, clientID int64) error
+	CreateInviteToken(ctx context.Context, ttl int64) (string, error)
 }

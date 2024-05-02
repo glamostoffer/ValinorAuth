@@ -7,7 +7,7 @@ import (
 )
 
 type UserCache interface {
-	SaveSignUpRequest(
+	SaveInviteToken(
 		ctx context.Context,
 		token string,
 		req model.SignUpRequest,

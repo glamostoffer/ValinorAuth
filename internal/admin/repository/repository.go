@@ -1,18 +1,23 @@
 package repository
 
-import "github.com/glamostoffer/ValinorAuth/utils/pg_connector"
+import (
+	"github.com/glamostoffer/ValinorAuth/utils/pg_connector"
+	"log/slog"
+)
 
 type PgClientRepository struct {
 	db    *pg_connector.Connector
-	admin AdminRepository
+	log   *slog.Logger
+	Admin AdminRepository
 }
 
-func New(db *pg_connector.Connector) *PgClientRepository {
+func New(db *pg_connector.Connector, log *slog.Logger) *PgClientRepository {
 	pg := &PgClientRepository{
-		db: db,
+		db:  db,
+		log: log,
 	}
 
-	pg.admin = newAdminRepo(pg)
+	pg.Admin = newAdminRepo(pg)
 
 	return pg
 }

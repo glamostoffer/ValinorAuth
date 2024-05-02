@@ -2,20 +2,18 @@ package cache
 
 import (
 	"context"
-	"github.com/glamostoffer/ValinorAuth/internal/model"
 	"time"
 )
 
 type AdminCache interface {
-	SaveSignUpRequest(
+	SaveInviteToken(
 		ctx context.Context,
-		token string,
-		req model.SignUpRequest,
 		ttl time.Duration,
+		token string,
 	) error
 
-	GetSignUpRequest(
+	ValidateInviteToken(
 		ctx context.Context,
 		token string,
-	) (request model.SignUpRequest, err error)
+	) (isValid bool, err error)
 }

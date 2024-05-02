@@ -2,7 +2,9 @@ package cache
 
 import (
 	"context"
-	"github.com/glamostoffer/ValinorAuth/internal/model"
+	"errors"
+	"github.com/redis/go-redis/v9"
+	"log/slog"
 	"time"
 )
 
@@ -16,18 +18,36 @@ func newAdminCache(cache *RedisCache) *adminCache {
 	}
 }
 
-func (r *adminCache) SaveSignUpRequest(
+func (r *adminCache) SaveInviteToken(
 	ctx context.Context,
-	token string,
-	req model.SignUpRequest,
 	ttl time.Duration,
+	token string,
 ) error {
+	log := r.cache.log.With(slog.String("op", "adminCache.SaveInviteToken"))
+
+	err := r.cache.rd.Set(ctx, token, true, ttl).Err()
+	if err != nil {
+		log.Error("failed to set token in redis", err.Error())
+		return err
+	}
+
 	return nil
 }
 
-func (r *adminCache) GetSignUpRequest(
+func (r *adminCache) ValidateInviteToken(
 	ctx context.Context,
 	token string,
-) (request model.SignUpRequest, err error) {
-	return model.SignUpRequest{}, err
+) (isValid bool, err error) {
+	log := r.cache.log.With(slog.String("op", "adminCache.ValidateInviteToken"))
+
+	err = r.cache.rd.Get(ctx, token).Err()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		log.Error("failed to get token from redis", err.Error())
+		return false, err
+	}
+	if errors.Is(err, redis.Nil) {
+		return false, nil
+	}
+
+	return true, err
 }

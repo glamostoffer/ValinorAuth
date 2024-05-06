@@ -44,16 +44,16 @@ func (s *AdminService) BanUser(
 	return nil, err
 }
 
-//func (s *AdminService) CreateInviteToken(
-//	ctx context.Context,
-//	request *adminProto.CreateInviteTokenRequest,
-//) (response *adminProto.CreateInviteTokenResponse, err error) {
-//	token, err := s.uc.Admin.CreateInviteToken(ctx, request.GetTTL())
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	response.Token = token
-//
-//	return response, nil
-//}
+func (s *AdminService) CreateInviteToken(
+	ctx context.Context,
+	request *adminProto.CreateInviteTokenRequest,
+) (response *adminProto.CreateInviteTokenResponse, err error) {
+	token, err := s.uc.Admin.CreateInviteToken(ctx, request.GetTtl())
+	if err != nil {
+		return nil, err
+	}
+
+	return &adminProto.CreateInviteTokenResponse{
+		Token: token,
+	}, nil
+}

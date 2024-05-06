@@ -17,10 +17,10 @@ func newAdminRepo(repo *PgClientRepository) *adminRepo {
 	}
 }
 
-func (u *adminRepo) GetUserByID(ctx context.Context, userID int64) (user model.User, err error) {
-	log := u.adminRepo.log.With(slog.String("op", "adminRepo.GetUserByID"))
+func (r *adminRepo) GetUserByID(ctx context.Context, userID int64) (user model.User, err error) {
+	log := r.adminRepo.log.With(slog.String("op", "adminRepo.GetUserByID"))
 
-	err = u.adminRepo.db.GetContext(ctx, &user, queryGetUserByID)
+	err = r.adminRepo.db.GetContext(ctx, &user, queryGetUserByID, userID)
 	if err != nil {
 		log.Error("failed to get user by id", err.Error())
 		return user, err
@@ -29,16 +29,17 @@ func (u *adminRepo) GetUserByID(ctx context.Context, userID int64) (user model.U
 	return user, nil
 }
 
-func (u *adminRepo) CreateAdmin(ctx context.Context, user model.User) error {
-	log := u.adminRepo.log.With(slog.String("op", "adminRepo.CreateAdmin"))
+func (r *adminRepo) CreateAdmin(ctx context.Context, user model.User) error {
+	log := r.adminRepo.log.With(slog.String("op", "adminRepo.CreateAdmin"))
 
-	res, err := u.adminRepo.db.ExecContext(
+	res, err := r.adminRepo.db.ExecContext(
 		ctx,
 		queryCreateAdmin,
 		user.Username,
 		user.Password,
 		user.CreatedAt,
 		user.UpdatedAt,
+		consts.AdminRoleID,
 	)
 	if err != nil {
 		log.Error("failed to insert admin into table", err.Error())
@@ -59,10 +60,10 @@ func (u *adminRepo) CreateAdmin(ctx context.Context, user model.User) error {
 	return nil
 }
 
-func (u *adminRepo) DeleteUser(ctx context.Context, userID int64) error {
-	log := u.adminRepo.log.With(slog.String("op", "adminRepo.DeleteUser"))
+func (r *adminRepo) DeleteUser(ctx context.Context, userID int64) error {
+	log := r.adminRepo.log.With(slog.String("op", "adminRepo.DeleteUser"))
 
-	res, err := u.adminRepo.db.ExecContext(
+	res, err := r.adminRepo.db.ExecContext(
 		ctx,
 		queryDeleteUser,
 		userID,
@@ -84,4 +85,16 @@ func (u *adminRepo) DeleteUser(ctx context.Context, userID int64) error {
 	}
 
 	return nil
+}
+
+func (r *adminRepo) CheckUserExists(ctx context.Context, login string) (exists bool, err error) {
+	log := r.adminRepo.log.With(slog.String("op", "adminRepo.CheckUserExists"))
+
+	err = r.adminRepo.db.GetContext(ctx, &exists, queryIsUserExists, login)
+	if err != nil {
+		log.Error("failed to check if user exists", err.Error())
+		return exists, err
+	}
+
+	return exists, nil
 }

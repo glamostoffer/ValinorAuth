@@ -57,6 +57,7 @@ func (a *App) Start(ctx context.Context) error {
 	adminRd := adminCache.New(rd, a.log)
 
 	clientUC := clientUseCase.New(
+		a.cfg.UseCase,
 		clientRd,
 		clientRepo,
 		tx,

@@ -14,3 +14,13 @@ const (
 	FmtCannotStop    = "can't stop"
 	FmtErrOnStopping = "error on stopping"
 )
+
+const (
+	UserRoleID = iota + 1
+	AdminRoleID
+)
+
+const (
+	Admin = "admin"
+	User  = "user"
+)

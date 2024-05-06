@@ -23,6 +23,16 @@ func newAdminUC(useCase *UseCase) *adminUseCase {
 func (u *adminUseCase) SignUp(ctx context.Context, request model.AdminSignUpRequest) error {
 	log := u.uc.log.With(slog.String("op", "adminUseCase.SignUp"))
 
+	exists, err := u.uc.repo.Admin.CheckUserExists(ctx, request.Login)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		log.Warn("attempt to use existing login")
+		return consts.ErrLoginAlreadyExists
+	}
+
 	isValid, err := u.uc.cache.Admin.ValidateInviteToken(ctx, request.InviteToken)
 	if err != nil {
 		return err

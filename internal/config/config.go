@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"github.com/glamostoffer/ValinorAuth/internal/client/usecase"
 	rd "github.com/glamostoffer/ValinorAuth/utils/redis_connector"
 	"os"
 	"time"
@@ -11,13 +12,13 @@ import (
 )
 
 type Config struct {
-	StartTimeout time.Duration `yaml:"start_timeout"`
-	StopTimeout  time.Duration `yaml:"stop_timeout"`
-	Env          string        `yaml:"env"`
-	TokenTTL     time.Duration `yaml:"token_ttl"`
-	GRPC         GRPCConfig    `yaml:"grpc"`
-	Postgres     pg.Config     `yaml:"postgres"`
-	Redis        rd.Config     `yaml:"redis"`
+	StartTimeout time.Duration  `yaml:"start_timeout"`
+	StopTimeout  time.Duration  `yaml:"stop_timeout"`
+	Env          string         `yaml:"env"`
+	UseCase      usecase.Config `yaml:"use_case"`
+	GRPC         GRPCConfig     `yaml:"grpc"`
+	Postgres     pg.Config      `yaml:"postgres"`
+	Redis        rd.Config      `yaml:"redis"`
 }
 
 type GRPCConfig struct {

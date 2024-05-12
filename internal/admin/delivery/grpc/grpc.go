@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/glamostoffer/ValinorAuth/internal/admin/usecase"
 	"github.com/glamostoffer/ValinorAuth/internal/model"
+	"github.com/glamostoffer/ValinorAuth/utils/convert"
 	adminProto "github.com/glamostoffer/ValinorProtos/auth/admin_auth"
 	"github.com/golang/protobuf/ptypes/empty"
 )
@@ -55,5 +56,20 @@ func (s *AdminService) CreateInviteToken(
 
 	return &adminProto.CreateInviteTokenResponse{
 		Token: token,
+	}, nil
+}
+
+func (s *AdminService) GetListOfUsers(
+	ctx context.Context,
+	request *adminProto.GetListOfUsersRequest,
+) (response *adminProto.GetListOfUsersResponse, err error) {
+	users, hasNext, err := s.uc.Admin.GetUsers(ctx, request.GetLimit(), request.GetOffset())
+	if err != nil {
+		return nil, err
+	}
+
+	return &adminProto.GetListOfUsersResponse{
+		Users:   convert.UsersToProto(users),
+		HasNext: hasNext,
 	}, nil
 }

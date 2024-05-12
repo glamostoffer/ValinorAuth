@@ -79,3 +79,9 @@ func (u *adminUseCase) CreateInviteToken(ctx context.Context, ttl int64) (string
 
 	return token, nil
 }
+
+func (u *adminUseCase) GetUsers(ctx context.Context, limit, offset int64) ([]model.User, bool, error) {
+	//log := u.uc.log.With(slog.String("op", "adminUseCase.GetUsers"))
+
+	return u.uc.repo.Admin.GetUsers(ctx, limit, offset)
+}

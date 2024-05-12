@@ -98,3 +98,27 @@ func (r *adminRepo) CheckUserExists(ctx context.Context, login string) (exists b
 
 	return exists, nil
 }
+
+func (r *adminRepo) GetUsers(ctx context.Context, limit, offset int64) ([]model.User, bool, error) {
+	log := r.adminRepo.log.With(slog.String("op", "adminRepo.GetUsers"))
+
+	users := make([]model.User, 0)
+	err := r.adminRepo.db.SelectContext(
+		ctx,
+		&users,
+		queryGetUsers,
+		limit,
+		offset,
+	)
+	if err != nil {
+		log.Error("failed to get users from db", err.Error())
+		return nil, false, err
+	}
+
+	if int64(len(users)) > limit {
+		users = users[:len(users)-1]
+		return users, true, nil
+	} else {
+		return users, false, nil
+	}
+}

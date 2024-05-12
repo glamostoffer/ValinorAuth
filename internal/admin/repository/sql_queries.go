@@ -29,4 +29,15 @@ select exists (
 	where username = $1
 )
 `
+	queryGetUsers = `
+select
+	id,
+	username,
+	role,	
+	created_at,
+	updated_at
+from auth."user"
+limit $1 + 1
+offset $2
+`
 )

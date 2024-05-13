@@ -53,7 +53,7 @@ func (a *App) Start(ctx context.Context) error {
 	clientRepo := clientRepository.New(pg, a.log)
 	adminRepo := adminRepository.New(pg, a.log)
 
-	clientRd := clientCache.New(rd)
+	clientRd := clientCache.New(rd, a.log)
 	adminRd := adminCache.New(rd, a.log)
 
 	clientUC := clientUseCase.New(
@@ -64,6 +64,7 @@ func (a *App) Start(ctx context.Context) error {
 		a.log,
 	)
 	adminUC := adminUseCase.New(
+		a.cfg.UseCase,
 		adminRd,
 		adminRepo,
 		tx,

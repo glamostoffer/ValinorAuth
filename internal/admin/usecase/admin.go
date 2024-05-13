@@ -4,6 +4,9 @@ import (
 	"context"
 	"github.com/glamostoffer/ValinorAuth/internal/model"
 	"github.com/glamostoffer/ValinorAuth/pkg/consts"
+	"github.com/glamostoffer/ValinorAuth/utils"
+	"github.com/glamostoffer/ValinorAuth/utils/mapper"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
@@ -84,4 +87,38 @@ func (u *adminUseCase) GetUsers(ctx context.Context, limit, offset int64) ([]mod
 	//log := u.uc.log.With(slog.String("op", "adminUseCase.GetUsers"))
 
 	return u.uc.repo.Admin.GetUsers(ctx, limit, offset)
+}
+
+func (u *adminUseCase) ValidateToken(ctx context.Context, tokenString string) (resp model.ValidateTokenResponse, err error) {
+	log := u.uc.log.With(slog.String("op", "adminUseCase.ValidateToken"))
+
+	isValid, err := u.uc.cache.Admin.ValidateAccessToken(ctx, tokenString)
+	if err != nil {
+		return resp, err
+	}
+	if !isValid {
+		return resp, consts.ErrInvalidAccessToken
+	}
+
+	token, err := utils.ParseJwtToken(tokenString, u.uc.cfg.Secret)
+	if err != nil {
+		log.Error("failed to parse token", err.Error())
+		return resp, err
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	role := claims["role"].(int)
+	if role != consts.AdminRoleID {
+		return resp, consts.ErrInvalidAccessToken
+	}
+
+	userID := claims["id"].(int64)
+	login := claims["login"].(string)
+
+	resp.Role = mapper.Roles[role]
+	resp.UserID = userID
+	resp.Login = login
+
+	return resp, nil
 }

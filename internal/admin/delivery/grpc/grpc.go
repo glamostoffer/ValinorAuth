@@ -73,3 +73,19 @@ func (s *AdminService) GetListOfUsers(
 		HasNext: hasNext,
 	}, nil
 }
+
+func (s *AdminService) AdminAuth(
+	ctx context.Context,
+	request *adminProto.AdminAuthRequest,
+) (response *adminProto.AdminAuthResponse, err error) {
+	out, err := s.uc.Admin.ValidateToken(ctx, request.GetAccessToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &adminProto.AdminAuthResponse{
+		UserID: out.UserID,
+		Login:  out.Login,
+		Role:   out.Role,
+	}, nil
+}

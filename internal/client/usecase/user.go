@@ -7,6 +7,8 @@ import (
 	"github.com/glamostoffer/ValinorAuth/internal/model"
 	"github.com/glamostoffer/ValinorAuth/pkg/consts"
 	"github.com/glamostoffer/ValinorAuth/utils"
+	"github.com/glamostoffer/ValinorAuth/utils/mapper"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"time"
@@ -78,7 +80,12 @@ func (u *userUseCase) SignIn(
 	token, err = utils.NewJwtToken(user, u.uc.cfg.TokenTTL, u.uc.cfg.Secret)
 	if err != nil {
 		log.Error("can't create jwt token", err.Error())
-		return token, err
+		return "", err
+	}
+
+	err = u.uc.cache.User.SaveAccessToken(ctx, token, u.uc.cfg.TokenTTL)
+	if err != nil {
+		return "", err
 	}
 
 	return token, err
@@ -115,4 +122,38 @@ func (u *userUseCase) UpdateUserDetails(ctx context.Context, userInfo model.Upda
 	}
 
 	return nil
+}
+
+func (u *userUseCase) ValidateToken(ctx context.Context, tokenString string) (resp model.ValidateTokenResponse, err error) {
+	log := u.uc.log.With(slog.String("op", "userUseCase.ValidateToken"))
+
+	isValid, err := u.uc.cache.User.ValidateAccessToken(ctx, tokenString)
+	if err != nil {
+		return resp, err
+	}
+	if !isValid {
+		return resp, consts.ErrInvalidAccessToken
+	}
+
+	token, err := utils.ParseJwtToken(tokenString, u.uc.cfg.Secret)
+	if err != nil {
+		log.Error("failed to parse token", err.Error())
+		return resp, err
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	role := claims["role"].(int)
+	if role != consts.UserRoleID {
+		return resp, consts.ErrInvalidAccessToken
+	}
+
+	userID := claims["id"].(int64)
+	login := claims["login"].(string)
+
+	resp.Role = mapper.Roles[role]
+	resp.UserID = userID
+	resp.Login = login
+
+	return resp, nil
 }

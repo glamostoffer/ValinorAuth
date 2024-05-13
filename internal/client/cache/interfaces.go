@@ -18,4 +18,15 @@ type UserCache interface {
 		ctx context.Context,
 		token string,
 	) (request model.SignUpRequest, err error)
+
+	SaveAccessToken(
+		ctx context.Context,
+		token string,
+		ttl time.Duration,
+	) error
+
+	ValidateAccessToken(
+		ctx context.Context,
+		token string,
+	) (bool, error)
 }

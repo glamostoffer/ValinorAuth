@@ -2,19 +2,22 @@ package cache
 
 import (
 	"github.com/glamostoffer/ValinorAuth/utils/redis_connector"
+	"log/slog"
 )
 
 type RedisCache struct {
 	rd   *redis_connector.Connector
-	user UserCache
+	log  *slog.Logger
+	User UserCache
 }
 
-func New(conn *redis_connector.Connector) *RedisCache {
+func New(conn *redis_connector.Connector, log *slog.Logger) *RedisCache {
 	rd := &RedisCache{
-		rd: conn,
+		rd:  conn,
+		log: log,
 	}
 
-	rd.user = newUserCache(rd)
+	rd.User = newUserCache(rd)
 
 	return rd
 }

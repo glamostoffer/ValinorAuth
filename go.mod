@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/avito-tech/go-transaction-manager v1.5.0
 	github.com/fatih/color v1.16.0
-	github.com/glamostoffer/ValinorProtos v0.0.3-0.20240512205153-eca453e4eee8
+	github.com/glamostoffer/ValinorProtos v0.0.3
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0

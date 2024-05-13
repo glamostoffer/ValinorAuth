@@ -3,18 +3,13 @@ package usecase
 import (
 	"github.com/glamostoffer/ValinorAuth/internal/client/cache"
 	"github.com/glamostoffer/ValinorAuth/internal/client/repository"
+	"github.com/glamostoffer/ValinorAuth/internal/config"
 	"github.com/glamostoffer/ValinorAuth/utils/tx_manager"
 	"log/slog"
-	"time"
 )
 
-type Config struct {
-	Secret   string        `yaml:"secret"`
-	TokenTTL time.Duration `yaml:"token_ttl"`
-}
-
 type UseCase struct {
-	cfg   Config
+	cfg   config.UseCaseConfig
 	cache *cache.RedisCache
 	repo  *repository.PgClientRepository
 	tx    *tx_manager.TxManager
@@ -23,7 +18,7 @@ type UseCase struct {
 }
 
 func New(
-	cfg Config,
+	cfg config.UseCaseConfig,
 	cache *cache.RedisCache,
 	repo *repository.PgClientRepository,
 	tx *tx_manager.TxManager,

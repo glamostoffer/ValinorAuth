@@ -82,3 +82,19 @@ func (s *ClientService) UpdateClientDetails(
 
 	return nil, err
 }
+
+func (s *ClientService) ClientAuth(
+	ctx context.Context,
+	request *clientProto.ClientAuthRequest,
+) (response *clientProto.ClientAuthResponse, err error) {
+	out, err := s.uc.User.ValidateToken(ctx, request.GetAccessToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &clientProto.ClientAuthResponse{
+		UserID: out.UserID,
+		Login:  out.Login,
+		Role:   out.Role,
+	}, nil
+}

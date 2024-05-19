@@ -144,10 +144,6 @@ func (u *userUseCase) ValidateToken(ctx context.Context, tokenString string) (re
 	claims := token.Claims.(jwt.MapClaims)
 
 	role := claims["role"].(int)
-	if role != consts.UserRoleID {
-		return resp, consts.ErrInvalidAccessToken
-	}
-
 	userID := claims["id"].(int64)
 	login := claims["login"].(string)
 

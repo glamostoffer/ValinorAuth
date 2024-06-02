@@ -89,3 +89,17 @@ func (s *AdminService) AdminAuth(
 		Role:   out.Role,
 	}, nil
 }
+
+func (s *AdminService) GetClientIDByLogin(
+	ctx context.Context,
+	req *adminProto.GetClientIDByLoginRequest,
+) (*adminProto.GetClientIDByLoginResponse, error) {
+	clientID, err := s.uc.Admin.GetClientIDByLogin(ctx, req.GetLogin())
+	if err != nil {
+		return nil, err
+	}
+
+	return &adminProto.GetClientIDByLoginResponse{
+		ClientID: clientID,
+	}, nil
+}

@@ -40,4 +40,9 @@ from auth."user"
 limit $1 + 1
 offset $2
 `
+	queryGetClientIDByLogin = `
+select id
+from auth."user"
+where username = $1
+`
 )

@@ -59,36 +59,36 @@ func (u *userUseCase) SignUp(ctx context.Context, request model.SignUpRequest) e
 func (u *userUseCase) SignIn(
 	ctx context.Context,
 	request model.SignInRequest,
-) (token string, err error) {
+) (token, role string, err error) {
 	log := u.uc.log.With(slog.String("op", "userUseCase.SignIn"))
 
 	user, err := u.uc.repo.User.GetUserByLogin(ctx, request.Login)
 	if err != nil && !errors.Is(sql.ErrNoRows, err) {
-		return token, err
+		return token, role, err
 	}
 
 	if errors.Is(sql.ErrNoRows, err) {
 		log.Warn("invalid login")
-		return token, consts.ErrInvalidCredentials
+		return token, role, consts.ErrInvalidCredentials
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		log.Warn("invalid login")
-		return token, consts.ErrInvalidCredentials
+		return token, role, consts.ErrInvalidCredentials
 	}
 
 	token, err = utils.NewJwtToken(user, u.uc.cfg.TokenTTL, u.uc.cfg.Secret)
 	if err != nil {
 		log.Error("can't create jwt token", err.Error())
-		return "", err
+		return "", role, err
 	}
 
 	err = u.uc.cache.User.SaveAccessToken(ctx, token, u.uc.cfg.TokenTTL)
 	if err != nil {
-		return "", err
+		return "", role, err
 	}
 
-	return token, err
+	return token, mapper.Roles[user.Role], err
 }
 
 func (u *userUseCase) GetUserDetails(ctx context.Context, clientID int64) (user model.User, err error) {
@@ -143,8 +143,8 @@ func (u *userUseCase) ValidateToken(ctx context.Context, tokenString string) (re
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	role := claims["role"].(int)
-	userID := claims["id"].(int64)
+	role := int(claims["role"].(float64))
+	userID := int64(claims["id"].(float64))
 	login := claims["login"].(string)
 
 	resp.Role = mapper.Roles[role]

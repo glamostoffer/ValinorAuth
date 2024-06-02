@@ -39,7 +39,7 @@ func (s *ClientService) SignIn(
 	ctx context.Context,
 	request *clientProto.SignInRequest,
 ) (response *clientProto.SignInResponse, err error) {
-	token, err := s.uc.User.SignIn(ctx, model.SignInRequest{
+	token, role, err := s.uc.User.SignIn(ctx, model.SignInRequest{
 		Login:    request.GetLogin(),
 		Password: request.GetPassword(),
 	})
@@ -49,6 +49,7 @@ func (s *ClientService) SignIn(
 
 	return &clientProto.SignInResponse{
 		Token: token,
+		Role:  role,
 	}, nil
 }
 

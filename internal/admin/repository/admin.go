@@ -122,3 +122,16 @@ func (r *adminRepo) GetUsers(ctx context.Context, limit, offset int64) ([]model.
 		return users, false, nil
 	}
 }
+
+func (r *adminRepo) GetClientIDByLogin(ctx context.Context, login string) (int64, error) {
+	log := r.adminRepo.log.With(slog.String("op", "adminRepo.GetClientIDByLogin"))
+
+	var clientID int64
+	err := r.adminRepo.db.GetContext(ctx, &clientID, queryGetClientIDByLogin, login)
+	if err != nil {
+		log.Error("failed to get client id by login", err.Error())
+		return 0, err
+	}
+
+	return clientID, nil
+}

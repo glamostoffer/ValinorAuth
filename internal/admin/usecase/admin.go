@@ -108,12 +108,12 @@ func (u *adminUseCase) ValidateToken(ctx context.Context, tokenString string) (r
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	role := claims["role"].(int)
+	role := int(claims["role"].(float64))
 	if role != consts.AdminRoleID {
 		return resp, consts.ErrInvalidAccessToken
 	}
 
-	userID := claims["id"].(int64)
+	userID := int64(claims["id"].(float64))
 	login := claims["login"].(string)
 
 	resp.Role = mapper.Roles[role]
@@ -121,4 +121,8 @@ func (u *adminUseCase) ValidateToken(ctx context.Context, tokenString string) (r
 	resp.Login = login
 
 	return resp, nil
+}
+
+func (u *adminUseCase) GetClientIDByLogin(ctx context.Context, login string) (int64, error) {
+	return u.uc.repo.Admin.GetClientIDByLogin(ctx, login)
 }

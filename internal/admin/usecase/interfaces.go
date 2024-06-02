@@ -11,4 +11,5 @@ type AdminUseCase interface {
 	BanUser(ctx context.Context, clientID int64) error
 	CreateInviteToken(ctx context.Context, ttl int64) (string, error)
 	GetUsers(ctx context.Context, limit, offset int64) ([]model.User, bool, error)
+	GetClientIDByLogin(ctx context.Context, login string) (int64, error)
 }
